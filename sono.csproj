@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+   <TargetFramework>net48</TargetFramework>
+   <PlatformTarget>x86</PlatformTarget>
+   <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Optimize>True</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="AOSharp.Common">
+      <HintPath>..\aosharp\AOSharp.Common\bin\Debug\AOSharp.Common.dll</HintPath>
+      <Aliases>global</Aliases>
+      <Private>True</Private>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="AOSharp.Core">
+      <HintPath>..\aosharp\AOSharp.Core\bin\Debug\AOSharp.Core.dll</HintPath>
+      <Aliases>global</Aliases>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="AOSharp.Recast">
+      <HintPath>..\aosharp\AOSharp.Recast\bin\Debug\AOSharp.Recast.dll</HintPath>
+      <Aliases>global</Aliases>
+      <Private>True</Private>
+      <EmbedInteropTypes>False</EmbedInteropTypes>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="main.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+</Project>
