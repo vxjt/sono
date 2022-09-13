@@ -8,12 +8,12 @@ using AOSharp.Core.UI;
 using AOSharp.Core.Movement;
 using AOSharp.Common.GameData;
 
-
 namespace sono
 {
     public class sono : AOPluginEntry
     {
         public Settings Settings;
+        private float _tick;
         private MovementController mc;
         Window sonoWin;
         public override void Run(string pluginDir)
@@ -30,9 +30,13 @@ namespace sono
                     sonoWin.Show(true);
                     if (sonoWin.IsValid)
                     {
-                        if (sonoWin.FindView("tText", out TextView testView))
+                        if (sonoWin.FindView("tText1", out TextView tText1))
                         {
-                            testView.Text = "1337";
+                            tText1.Text = "xx";
+                        }
+                        if (sonoWin.FindView("tText2", out TextView tText2))
+                        {
+                            tText2.Text = "yy";
                         }
                         if (sonoWin.FindView("pbhealth", out PowerBarView pbHealth))
                         {
@@ -56,11 +60,26 @@ namespace sono
 
         private void OnUpdate(object s, float deltaTime)
         {
-            if (sonoWin != null && sonoWin.IsValid)
+            _tick = _tick + 1;
+            Vector3 testa = new Vector3(0, DynelManager.LocalPlayer.GetAttackRange() / 50, 0);
+            //Debug.DrawSphere(DynelManager.LocalPlayer.Position + testa, 0.3f, DebuggingColor.LightBlue);
+            if (sonoWin != null && sonoWin.IsValid && Targeting.TargetChar != null)
             {
-                if (sonoWin.FindView("testTextView", out TextView testView))
+                if (sonoWin.FindView("tText1", out TextView tText1))
                 {
-                    //testView.Text = Targeting.TargetChar.GetStat(Stat.MonsterData).ToString();
+                    string stat1 = Targeting.TargetChar.GetStat(Stat.AttackCount).ToString();
+                    string stat2 = Targeting.TargetChar.GetStat(Stat.Can).ToString();
+                    string stat4 = Targeting.TargetChar.GetStat((Stat)201).ToString();
+                    
+                    tText1.Text = $"attack: {stat1} Can: {stat2} aggro: {stat4} flags: {Targeting.TargetChar.GetStat((Stat)0).ToString()}";
+                }
+                if (sonoWin.FindView("tText2", out TextView tText2))
+                {
+                    string _statmd = Targeting.TargetChar.GetStat(Stat.MonsterData).ToString();
+                    string _statrs = Targeting.TargetChar.Runspeed.ToString();
+                    string _statradius = Targeting.TargetChar.GetStat(Stat.CharRadius).ToString();
+                    string _statscale = Targeting.TargetChar.GetStat(Stat.Scale).ToString();
+                    tText2.Text = $"md: {_statmd} rs: {_statrs} radius: {_statradius} scale: {_statscale}";
                 }
                 if (sonoWin.FindView("pbhealth", out PowerBarView pbHealth))
                 {
@@ -87,15 +106,14 @@ namespace sono
                     }
                 }
             }
-            Vector3 testa = new Vector3(0, DynelManager.LocalPlayer.GetAttackRange() / 50, 0);
-            //Debug.DrawSphere(DynelManager.LocalPlayer.Position + testa, 0.3f, DebuggingColor.LightBlue);
             foreach (SimpleChar character in DynelManager.Characters)
             {
                 if (Settings["Vision"].AsBool())
                 {
+                    float _size = character.GetStat(Stat.Scale) / 100 * character.GetStat(Stat.CharRadius);
                     Vector3 v3Up = new Vector3(0, 1, 0);
-                    Vector3 v3Scale = new Vector3(0, character.GetStat(Stat.Scale) / 100, 0);
-                    Vector3 v3Shift = new Vector3(-character.GetStat(Stat.CharRadius), 0, 0);
+                    Vector3 v3yscale = new Vector3(0, _size, 0);
+                    Vector3 v3Shift = new Vector3(_size * -1f, 0, 0);
                     Vector3 v3Delta = DynelManager.LocalPlayer.Position - character.Position;
                     double dubLength = Math.Sqrt(v3Delta.X * v3Delta.X + v3Delta.Y * v3Delta.Y + v3Delta.Z * v3Delta.Z);
                     Vector3 v3Norm = new Vector3(v3Delta.X / dubLength, v3Delta.Y / dubLength, v3Delta.Z / dubLength);
@@ -104,14 +122,21 @@ namespace sono
                     //Debug.DrawLine(character.Position + v3Scale, character.Position + v3Norm * character.GetStat(Stat.CharRadius) + v3Scale, DebuggingColor.Blue);
                     //Debug.DrawLine(character.Position + v3Scale, character.Position + v3Up * character.GetStat(Stat.CharRadius) + v3Scale, DebuggingColor.Green);
                     //Debug.DrawLine(character.Position + v3Scale, character.Position + v3X * character.GetStat(Stat.CharRadius) + v3Scale, DebuggingColor.Yellow);
-                    Debug.DrawLine(character.Position + v3Scale * 2f - v3X * character.GetStat(Stat.CharRadius) * 0.9f, character.Position + v3Scale * 2f - v3X * character.GetStat(Stat.CharRadius) * 0.2f, DebuggingColor.Red);
-                    Debug.DrawLine(character.Position + v3Scale * 2.1f - v3X * character.GetStat(Stat.CharRadius) * 0.9f, character.Position + v3Scale * 2.1f - v3X * character.GetStat(Stat.CharRadius) * 0.2f, DebuggingColor.Red);
-                    Debug.DrawLine(character.Position + v3Scale * 2f - v3X * character.GetStat(Stat.CharRadius) * 0.9f, character.Position + v3Scale * 2f - v3X * character.GetStat(Stat.CharRadius) * 0.9f + v3Up * 0.1f, DebuggingColor.Red);
-                    Debug.DrawLine(character.Position + v3Scale * 2f - v3X * character.GetStat(Stat.CharRadius) * 0.2f, character.Position + v3Scale * 2f - v3X * character.GetStat(Stat.CharRadius) * 0.2f + v3Up * 0.1f, DebuggingColor.Red);
+                    if(!character.IsPlayer && character != DynelManager.LocalPlayer && !character.IsAttacking) {
+                        Debug.DrawLine(character.Position, character.Position + v3Norm * 20f, DebuggingColor.Red);
+                    }
+                    //Debug.DrawLine(Aggro(character, DynelManager.LocalPlayer));
+                    //float _scalex
+                    //float _scaley = 0.67f;
+                    //float _width
+                    //float _height
+                    //Debug.DrawLine(character.Position + v3Scale * 1.05f - v3X * character.GetStat(Stat.CharRadius) * 0.9f, character.Position + v3Scale * 1.05f - v3X * character.GetStat(Stat.CharRadius) * 0.2f, DebuggingColor.Green);
+                    //Debug.DrawLine(character.Position + v3Scale - v3X * character.GetStat(Stat.CharRadius) * 1.05f, character.Position + v3Scale - v3X * character.GetStat(Stat.CharRadius) * 1.05f + v3Up * 0.2f, DebuggingColor.Yellow);
+                    //Debug.DrawLine(character.Position + v3Scale - v3X * character.GetStat(Stat.CharRadius) * 0.2f, character.Position + v3Scale - v3X * character.GetStat(Stat.CharRadius) * 0.2f + v3Up * 0.2f, DebuggingColor.Blue);
                     if (character.IsPathing)
                     {
-                        Debug.DrawLine(character.Position + v3Scale, character.PathingDestination + v3Scale, DebuggingColor.LightBlue);
-                        Debug.DrawSphere(character.PathingDestination + v3Scale, 0.2f, DebuggingColor.LightBlue);
+                        Debug.DrawLine(character.Position, character.PathingDestination + v3Up * Convert.ToSingle(Math.Sin(_tick * character.Runspeed / 500)) * 0.2f, DebuggingColor.LightBlue);
+                        Debug.DrawSphere(character.PathingDestination + v3Up * Convert.ToSingle(Math.Sin(_tick * character.Runspeed / 500)) * 0.2f, 0.3f, DebuggingColor.LightBlue);
                     }
                 }
             }
@@ -121,5 +146,8 @@ namespace sono
         {
             Chat.WriteLine("Teardown time!");
         }
-    }
+    }/*
+    public Tuple<Vector3, Vector3, Vector3> Aggro(SimpleChar _them, SimpleChar _us){
+        return (Vector3.Up, Vector3.Up, Vector3.Up);
+    }*/
 }

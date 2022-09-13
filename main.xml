@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" standalone="yes"?>
 <root>
 	<View>
-    <TextView name="tText" value="xx"/>
+    <TextView name="tText1" value="xx"/>
+    <TextView name="tText2" value="yy"/>
     <PowerBar name="pbhealth" bg_gfx="GFX_GUI_SHORT_HOR_BAR_EMPTY" full_gfx="GFX_GUI_SHORT_HOR_BAR_RED"/>
     <PowerBar name="pbmana" bg_gfx="GFX_GUI_SHORT_HOR_BAR_EMPTY" full_gfx="GFX_GUI_HOR_BAR_BLUE"/>
     <OptionCheckBox name="ocvision" label="Vision" opt_category="sono" opt_type="variant" opt_variable="sono__Vision"/>
