@@ -3,6 +3,9 @@
 //overhaul sit logic
 //add instinctive control to buffs
 //add iron circle to buffs
+//personal hp
+//hide bars during comabt
+//is attacked is there but idk how to get
 
 using System;
 using System.Collections.Generic;
@@ -45,6 +48,13 @@ namespace sono
             }
         }
     }
+    public class Figment
+    {
+        public Figment()
+        {
+
+        }
+    }
     public class sono : AOPluginEntry
     {
         Vector3 _pathColor;
@@ -75,11 +85,11 @@ namespace sono
                 Network.N3MessageReceived += Network_N3MessageReceived;
                 Network.PacketReceived += Network_PacketReceived;
                 //Network.N3MessageSent += Network_N3MessageSent;
-                Chat.WriteLine("wyd1227");
-                Chat.RegisterCommand("openwindow", (string command, string[] param, ChatWindow chatWindow) =>
+                Chat.WriteLine("morning");
+                Chat.RegisterCommand("sono", (string command, string[] param, ChatWindow chatWindow) =>
                 {
                     
-                    /*
+                    
                     int _val;
                     foreach (Stat _stat in (Stat[]) Enum.GetValues(typeof(Stat)))
                     {
@@ -90,7 +100,7 @@ namespace sono
                         }
                     }
                     Chat.WriteLine("done");
-                    */
+                    
                     
                     List<Item> characterItems = Inventory.Items;
                     //List<Item> characterItems = Inventory.Items;
@@ -126,7 +136,7 @@ namespace sono
                     }
                 });
                 foreach (Mission mission in Mission.List)
-                {
+                {   
                     if(string.Equals(mission.DisplayName, "Famous Last Words"))
                     {
                         //290938 + 6
@@ -136,9 +146,9 @@ namespace sono
                         flw.Add(new WorldItem(290635, 290941, _emptyColor));
                         flw.Add(new WorldItem(290636, 290942, _emptyColor));
                         flw.Add(new WorldItem(290637, 290943, _emptyColor));
-                        flw.Add(new WorldItem(290637, 0, _badColor));
-                        flw.Add(new WorldItem(290637, 0, _badColor));
-                        flw.Add(new WorldItem(290637, 0, _badColor));
+                        flw.Add(new WorldItem(290638, 0, _badColor));
+                        flw.Add(new WorldItem(290639, 0, _badColor));
+                        flw.Add(new WorldItem(290640, 0, _badColor));
                         foreach (WorldItem _wi in flw) {
                             if (Inventory.Find(_wi.itemid, out Item item)) {
                                 _wi.color = _badColor;
@@ -178,7 +188,7 @@ namespace sono
                     //string stat2 = Targeting.Target.GetStat((Stat)15).ToString();
                     //tText1.Text = $"{stat2}";
                 }
-                /*
+                
                 if (sonoWin.FindView("tText2", out TextView tText2))
                 {
                     
@@ -215,10 +225,9 @@ namespace sono
                         pbMana.SetLabel($"{Targeting.TargetChar.Nano} / {Targeting.TargetChar.MaxNano}, {Targeting.TargetChar.NanoPercent}");
                     }
                 }
-                */
             }
             foreach (SimpleChar character in DynelManager.Characters)
-            {
+            {// (2 * _lr * _hpss) / (float)Math.Exp(-5 * (character.Radius - _lr)) - _lr * _hpss +
                 if (Settings["Vision"].AsBool())
                 {
                     float _hpperc = character.GetStat(Stat.PercentRemainingHealth) / 100;
@@ -226,34 +235,42 @@ namespace sono
                     float _health = character.GetStat(Stat.Health);
                     float _maxhealth = character.GetStat(Stat.MaxHealth);
                     float _healthpc = Math.Max(0, _health / _maxhealth);
-                    float _scale = character.GetStat(Stat.CharRadius) * 0.75f;
+                    float _lr = DynelManager.LocalPlayer.Radius;
+                    //float _hpss = 3.5f;  //sigmoid intensity for hp scale
+                    float _hpyo = 7f;   //linear y offset factor
+                    float _scale = _lr * _hpyo;
                     Vector3 v3Up = new Vector3(0, 1, 0);
                     Vector3 v3Delta = DynelManager.LocalPlayer.Position - character.Position;
                     Vector3 v3Norm = new Vector3(v3Delta.X / character.DistanceFrom(DynelManager.LocalPlayer), v3Delta.Y / character.DistanceFrom(DynelManager.LocalPlayer), v3Delta.Z / character.DistanceFrom(DynelManager.LocalPlayer));
                     Debug.DrawSphere(DynelManager.LocalPlayer.Position, DynelManager.LocalPlayer.Radius, _pathColor);
+                    //Chat.WriteLine($"{(2 * _lr * _hpss) / (float)Math.Exp(-5 * (character.Radius - _lr)) - _lr * _hpss}");
                     Vector3 v3X = Vector3.Cross(v3Up, v3Norm);
                     Vector3 _anchor = new Vector3(0, _scale, 0);
                     //Debug.DrawLine(character.Position, character.Position + v3Norm * character.GetStat(Stat.CharRadius), DebuggingColor.Blue);
                     //Debug.DrawLine(character.Position, character.Position + v3Up, DebuggingColor.Green);
                     //Debug.DrawLine(character.Position, character.Position + v3X * character.GetStat(Stat.CharRadius), DebuggingColor.Yellow);
                     //low horiz
-                    Debug.DrawLine(character.Position + _anchor - v3X * character.Radius * 7 * _healthpc - v3X * character.Radius * 2, character.Position + _anchor - v3X * character.Radius * 9, _emptyColor);
-                    Debug.DrawLine(character.Position + _anchor - v3X * character.Radius * 2, character.Position + _anchor - v3X * character.Radius * 7 * _healthpc - v3X * character.Radius * 2, _healthColor);
-                    //high horiz
-                    Debug.DrawLine(character.Position + _anchor + new Vector3(0, character.Radius / 2, 0) - v3X * character.Radius * 2, character.Position + _anchor + new Vector3(0, character.Radius / 2, 0) - v3X * character.Radius * 7 * _healthpc - v3X * character.Radius * 2, _healthColor);
-                    Debug.DrawLine(character.Position + _anchor + new Vector3(0, character.Radius / 2, 0) - v3X * character.Radius * 7 * _healthpc - v3X * character.Radius * 2, character.Position + _anchor + new Vector3(0, character.Radius / 2, 0) - v3X * character.Radius * 9, _emptyColor);
-                    //left vert
-                    Debug.DrawLine(character.Position + _anchor - v3X * character.Radius * 2, character.Position + _anchor + new Vector3(0, character.Radius / 2, 0) - v3X * character.Radius * 2, _healthColor);
-                    //right verts
-                    Debug.DrawLine(character.Position + _anchor - v3X * character.Radius * 9, character.Position + _anchor + new Vector3(0, character.Radius / 2, 0) - v3X * character.Radius * 9, _emptyColor);   
-                    Debug.DrawLine(character.Position + _anchor - v3X * character.Radius * 7 * _healthpc - v3X * character.Radius * 2, character.Position + _anchor + new Vector3(0, character.Radius / 2, 0) - v3X * character.Radius * 7 * _healthpc - v3X * character.Radius * 2, _healthColor);
-                    //diag
-                    Debug.DrawLine(character.Position + _anchor - v3X * character.Radius * 2, character.Position + _anchor + new Vector3(0, character.Radius / 2, 0) - v3X * character.Radius * 7 * _healthpc - v3X * character.Radius * 2, _healthColor);
                     if(character.IsNpc && !character.IsAttacking)
                     {
                         Debug.DrawLine(character.Position, character.DistanceFrom(DynelManager.LocalPlayer) < _range ? DynelManager.LocalPlayer.Position : character.Position + v3Norm * _range, _radarColor);
-                    }
-                     if (character.IsPathing)
+                    } else if (character.IsAttacking || character.MissingHealth > 0) {
+                        Debug.DrawLine(character.Position + _anchor - v3X * character.Radius * 7 * _healthpc - v3X * character.Radius * 2, character.Position + _anchor - v3X * character.Radius * 9, _emptyColor);
+                        Debug.DrawLine(character.Position + _anchor - v3X * character.Radius * 2, character.Position + _anchor - v3X * character.Radius * 7 * _healthpc - v3X * character.Radius * 2, _healthColor);
+                        //high horiz
+                        Debug.DrawLine(character.Position + _anchor + new Vector3(0, character.Radius / 2, 0) - v3X * character.Radius * 2, character.Position + _anchor + new Vector3(0, character.Radius / 2, 0) - v3X * character.Radius * 7 * _healthpc - v3X * character.Radius * 2, _healthColor);
+                        Debug.DrawLine(character.Position + _anchor + new Vector3(0, character.Radius / 2, 0) - v3X * character.Radius * 7 * _healthpc - v3X * character.Radius * 2, character.Position + _anchor + new Vector3(0, character.Radius / 2, 0) - v3X * character.Radius * 9, _emptyColor);
+                        //left vert
+                        Debug.DrawLine(character.Position + _anchor - v3X * character.Radius * 2, character.Position + _anchor + new Vector3(0, character.Radius / 2, 0) - v3X * character.Radius * 2, _healthColor);
+                        //right verts
+                        Debug.DrawLine(character.Position + _anchor - v3X * character.Radius * 9, character.Position + _anchor + new Vector3(0, character.Radius / 2, 0) - v3X * character.Radius * 9, _emptyColor);   
+                        Debug.DrawLine(character.Position + _anchor - v3X * character.Radius * 7 * _healthpc - v3X * character.Radius * 2, character.Position + _anchor + new Vector3(0, character.Radius / 2, 0) - v3X * character.Radius * 7 * _healthpc - v3X * character.Radius * 2, _healthColor);
+                        //diag
+                        Debug.DrawLine(character.Position + _anchor - v3X * character.Radius * 2, character.Position + _anchor + new Vector3(0, character.Radius / 2, 0) - v3X * character.Radius * 7 * _healthpc - v3X * character.Radius * 2, _healthColor);
+                    } /*else if (character.GetStat(Stat.Instance) == Targeting.TargetChar.GetStat(Stat.Instance)) {
+                        Debug.DrawSphere(character.Position, 0.5f, DebuggingColor.Purple);
+                    }*/
+
+                    if (character.IsPathing)
                     {
                         Debug.DrawLine(character.Position, character.PathingDestination, _pathColor);
                         Debug.DrawSphere(character.PathingDestination + v3Up * (Convert.ToSingle(Math.Sin(_tick * character.Runspeed / 1000)) / 2f + 1.5f), 0.4f, _pathColor);
