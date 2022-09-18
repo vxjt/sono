@@ -157,6 +157,16 @@ namespace sono
                             }
                         }
                     }
+                    if(String.Equals(mission.DisplayName, "2HO Graffiti"))
+                    {
+                        flw.Add(new WorldItem(291277, 0, _goodColor));
+                        flw.Add(new WorldItem(291278, 0, _goodColor));
+                        flw.Add(new WorldItem(291279, 0, _goodColor));
+                    }
+                    if(mission.DisplayName.Contains("Green Sticky Goo"))
+                    {
+                        flw.Add(new WorldItem(288043, 0, _goodColor));
+                    }
                     /*
                     Chat.WriteLine($"   {mission.Identity}");
                     Chat.WriteLine($"       Ptr: {mission.Pointer.ToString("X4")}");
@@ -191,14 +201,14 @@ namespace sono
                 
                 if (sonoWin.FindView("tText2", out TextView tText2))
                 {
-                    
+                    /*
                     string _statmd = Targeting.TargetChar.GetStat(Stat.MonsterData).ToString();
                     string _statrs = Targeting.TargetChar.Runspeed.ToString();
                     string _statradius = Targeting.TargetChar.GetStat(Stat.CharRadius).ToString();
                     string _statradius2 = Targeting.TargetChar.Radius.ToString();
                     string _statdist = Targeting.TargetChar.DistanceFrom(DynelManager.LocalPlayer).ToString();
                     string _logidist = Targeting.TargetChar.GetLogicalRangeToTarget(DynelManager.LocalPlayer).ToString();
-                    tText2.Text = $"md: {_statmd} rs: {_statrs} radius: {_statradius} radius2: {_statradius2} _statdist {_statdist} logic: {_logidist}";
+                    tText2.Text = $"md: {_statmd} rs: {_statrs} radius: {_statradius} radius2: {_statradius2} _statdist {_statdist} logic: {_logidist}";*/
                     
                 }
                 if (sonoWin.FindView("pbhealth", out PowerBarView pbHealth))
@@ -287,6 +297,14 @@ namespace sono
                         if (_wi.id == _tempid) 
                         {
                             Debug.DrawSphere(_d.Position, 1f, _wi.color);
+                        }
+                    }
+                    int _instance = _d.GetStat(Stat.StaticInstance);
+                    foreach (WorldItem _wi in flw)
+                    {
+                        if (_wi.id == _instance)
+                        {
+                            Debug.DrawSphere(_d.Position, 1f, _d.GetStat(Stat.SecondaryItemInstance) == 291267 ? _badColor : _goodColor);
                         }
                     }
                 }
